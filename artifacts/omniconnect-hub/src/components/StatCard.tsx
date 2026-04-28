@@ -27,35 +27,35 @@ export function StatCard({
 }: StatCardProps) {
   const [animatedValue, setAnimatedValue] = useState(0);
 
-  // تحريك الأرقام عند تغيير القيمة
+  // تحريك الأرقام بشكل ناعم (easeOutCubic) عند تغيير القيمة
   useEffect(() => {
-    if (typeof value === 'number' && !isLoading) {
-      const duration = 1000; // 1 ثانية
-      const steps = 60;
-      const increment = (value - animatedValue) / steps;
-      let currentStep = 0;
-
-      const timer = setInterval(() => {
-        currentStep++;
-        setAnimatedValue(prev => {
-          const newValue = prev + increment;
-          if (currentStep >= steps) {
-            return value;
-          }
-          return newValue;
-        });
-
-        if (currentStep >= steps) {
-          clearInterval(timer);
-        }
-      }, duration / steps);
-
-      return () => clearInterval(timer);
-    } else if (typeof value === 'number') {
-      setAnimatedValue(value);
+    if (typeof value !== 'number' || isLoading) {
+      if (typeof value === 'number') setAnimatedValue(value);
+      return undefined;
     }
 
-    return undefined;
+    const startValue = animatedValue;
+    const endValue = value;
+    if (startValue === endValue) return undefined;
+
+    const duration = 1600; // 1.6 ثانية لانتقال ناعم
+    const startTime = performance.now();
+    let raf = 0;
+
+    // easeOutCubic: حركة تبدأ سريعة وتنتهي ببطء
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(progress);
+      const next = startValue + (endValue - startValue) * eased;
+      setAnimatedValue(progress >= 1 ? endValue : next);
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [value, isLoading]);
 
   const TrendIcon =

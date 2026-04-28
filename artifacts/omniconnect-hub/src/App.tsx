@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,32 +24,6 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
     >
       {children}
     </motion.div>
-  );
-}
-
-// Component to handle routing with separate layout for 404
-function RouterWithLayoutLogic() {
-  const [location] = useLocation();
-  
-  // صفحات صحيحة
-  const validRoutes = ["/", "/tracking", "/analytics", "/sustainability", "/themes"];
-  const isValidRoute = validRoutes.some(route => {
-    // مطابقة دقيقة مع المسارات الكاملة، مع تجاهل BASE_URL
-    const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-    const normalizedLocation = basePath ? location.replace(basePath, "") || "/" : location;
-    return route === normalizedLocation;
-  });
-
-  return (
-    <>
-      {isValidRoute ? (
-        <Layout>
-          <Router />
-        </Layout>
-      ) : (
-        <NotFound />
-      )}
-    </>
   );
 }
 
@@ -82,6 +56,12 @@ function Router() {
             <Themes />
           </PageWrapper>
         </Route>
+        {/* المسار الافتراضي = صفحة 404 داخل نفس الـ Layout */}
+        <Route>
+          <PageWrapper>
+            <NotFound />
+          </PageWrapper>
+        </Route>
       </Switch>
     </AnimatePresence>
   );
@@ -93,7 +73,9 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <RouterWithLayoutLogic />
+            <Layout>
+              <Router />
+            </Layout>
             <Toaster />
           </WouterRouter>
         </TooltipProvider>

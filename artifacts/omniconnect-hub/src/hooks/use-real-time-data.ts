@@ -46,16 +46,36 @@ export const useRealTimeData = () => {
   const pausedRef = useRef(false);
 
   useEffect(() => {
+    // مساعد لتغيّرات صغيرة وناعمة (احتمال كبير لعدم التغيير)
+    const tinyDelta = (max: number) => {
+      // 60% من الوقت: لا تغيير، 40%: تغيير صغير ±max
+      if (Math.random() < 0.6) return 0;
+      return Math.round((Math.random() * 2 - 1) * max);
+    };
+
     const interval = setInterval(() => {
       if (pausedRef.current) return;
       setData(prevData => ({
-        totalShipments: prevData.totalShipments + Math.floor(Math.random() * 3) - 1,
-        activeShipments: prevData.activeShipments + Math.floor(Math.random() * 5) - 2,
-        delayedShipments: Math.max(0, prevData.delayedShipments + Math.floor(Math.random() * 3) - 1),
+        // الشحنات الإجمالية: غالباً تزداد ببطء
+        totalShipments:
+          prevData.totalShipments + (Math.random() < 0.7 ? 1 : 0),
+        // الشحنات النشطة: تذبذب صغير ±1
+        activeShipments: prevData.activeShipments + tinyDelta(1),
+        // الشحنات المتأخرة: تتغير بشكل نادر فقط
+        delayedShipments: Math.max(
+          0,
+          prevData.delayedShipments + (Math.random() < 0.1 ? (Math.random() < 0.5 ? -1 : 1) : 0),
+        ),
         totalPorts: prevData.totalPorts,
-        fuelConsumption: prevData.fuelConsumption + Math.floor(Math.random() * 20) - 5,
-        co2Emission: prevData.co2Emission + Math.floor(Math.random() * 15) - 3,
-        systemEfficiency: Math.min(99.9, Math.max(92, prevData.systemEfficiency + (Math.random() * 0.4 - 0.2)))
+        // الوقود: تغيّرات بسيطة على رقم بآلاف اللترات (غير محسوسة بصرياً)
+        fuelConsumption: prevData.fuelConsumption + tinyDelta(3),
+        // الانبعاثات: تغيّرات بسيطة جداً
+        co2Emission: prevData.co2Emission + tinyDelta(2),
+        // الكفاءة: تغيّر دقيق جداً (±0.05%)
+        systemEfficiency: Math.min(
+          99.9,
+          Math.max(92, prevData.systemEfficiency + (Math.random() * 0.1 - 0.05)),
+        ),
       }));
     }, 2000);
 
