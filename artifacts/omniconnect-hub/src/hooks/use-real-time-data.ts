@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ==========================================
 // 📊 نظام البيانات المتغيرة في الوقت الفعلي
+// كل ثانيتين: نُحدِّث 2 إلى 3 أرقام فقط بتغيير صغير جداً
 // ==========================================
 
 export interface RealTimeData {
@@ -39,11 +40,52 @@ const getInitialData = (): RealTimeData => ({
   systemEfficiency: 96.8,
 });
 
-// تذبذب صغير حول قيمة محورية (لتجنب الانحراف الطويل المدى)
-const driftToward = (current: number, anchor: number, drift: number, jitter: number) => {
-  const pull = (anchor - current) * 0.04; // قوة سحب نحو القيمة المحورية
-  const random = (Math.random() * 2 - 1) * jitter;
-  return current + pull + drift + random;
+// المفاتيح القابلة للتحديث (totalPorts ثابت)
+const UPDATABLE_KEYS = [
+  'totalShipments',
+  'activeShipments',
+  'delayedShipments',
+  'fuelConsumption',
+  'co2Emission',
+  'systemEfficiency',
+] as const;
+
+type UpdatableKey = (typeof UPDATABLE_KEYS)[number];
+
+// تطبيق تغيير صغير فقط على المفتاح المُختار
+const applyTinyChange = (key: UpdatableKey, current: number): number => {
+  switch (key) {
+    case 'totalShipments':
+      // +1 إلى +3 (شحنات تُسجَّل)
+      return current + 1 + Math.floor(Math.random() * 3);
+    case 'activeShipments':
+      // ±1 أو ±2 حول 3250
+      return current + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2));
+    case 'delayedShipments':
+      // ±1 ضمن نطاق 5..28
+      return Math.max(5, Math.min(28, current + (Math.random() < 0.5 ? -1 : 1)));
+    case 'fuelConsumption':
+      // +2 إلى +5
+      return current + 2 + Math.floor(Math.random() * 4);
+    case 'co2Emission':
+      // +1 إلى +3
+      return current + 1 + Math.floor(Math.random() * 3);
+    case 'systemEfficiency':
+      // ±0.1
+      return Math.min(99.9, Math.max(92, +(current + (Math.random() < 0.5 ? -0.1 : 0.1)).toFixed(1)));
+  }
+};
+
+// اختيار 2 أو 3 مفاتيح عشوائياً دون تكرار
+const pickKeys = (count: number): UpdatableKey[] => {
+  const pool = [...UPDATABLE_KEYS];
+  const result: UpdatableKey[] = [];
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    result.push(pool[idx]!);
+    pool.splice(idx, 1);
+  }
+  return result;
 };
 
 export const useRealTimeData = () => {
@@ -51,52 +93,21 @@ export const useRealTimeData = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<AnalysisResult | null>(null);
   const pausedRef = useRef(false);
-  const tickRef = useRef(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (pausedRef.current) return;
-      tickRef.current += 1;
+
+      // 2 أو 3 أرقام فقط في كل دورة
+      const count = Math.random() < 0.5 ? 2 : 3;
+      const keysToUpdate = pickKeys(count);
 
       setData(prev => {
-        // الشحنات الإجمالية: تنمو دائماً (+1 إلى +4) — كأنها شحنات جديدة تسجَّل
-        const totalShipments = prev.totalShipments + 1 + Math.floor(Math.random() * 4);
-
-        // الشحنات النشطة: تتذبذب ±3 حول 3250
-        const activeShipments = Math.round(
-          driftToward(prev.activeShipments, 3250, 0, 3),
-        );
-
-        // الشحنات المتأخرة: تتغير ببطء ±1 كل عدة دورات
-        let delayedShipments = prev.delayedShipments;
-        if (tickRef.current % 3 === 0) {
-          delayedShipments = Math.max(
-            5,
-            Math.min(28, delayedShipments + (Math.random() < 0.5 ? -1 : 1)),
-          );
+        const next = { ...prev };
+        for (const key of keysToUpdate) {
+          next[key] = applyTinyChange(key, prev[key]);
         }
-
-        // الوقود: يزداد بشكل مستمر (+8 إلى +25 لتر/ثانيتين)
-        const fuelConsumption = prev.fuelConsumption + 8 + Math.floor(Math.random() * 18);
-
-        // الانبعاثات: تزداد كذلك (+5 إلى +18 كغم/ثانيتين)
-        const co2Emission = prev.co2Emission + 5 + Math.floor(Math.random() * 14);
-
-        // الكفاءة: تتذبذب ±0.3 حول 96.5%
-        const systemEfficiency = Math.min(
-          99.9,
-          Math.max(92, driftToward(prev.systemEfficiency, 96.5, 0, 0.3)),
-        );
-
-        return {
-          totalShipments,
-          activeShipments,
-          delayedShipments,
-          totalPorts: prev.totalPorts,
-          fuelConsumption,
-          co2Emission,
-          systemEfficiency: +systemEfficiency.toFixed(2),
-        };
+        return next;
       });
     }, 2000);
 
@@ -117,7 +128,7 @@ export const useRealTimeData = () => {
 
         setData(prev => ({
           ...prev,
-          systemEfficiency: Math.min(99.9, prev.systemEfficiency + efficiencyGain),
+          systemEfficiency: Math.min(99.9, +(prev.systemEfficiency + efficiencyGain).toFixed(1)),
           co2Emission: Math.max(0, prev.co2Emission - co2Reduction),
           fuelConsumption: Math.max(0, prev.fuelConsumption - fuelReduction),
         }));

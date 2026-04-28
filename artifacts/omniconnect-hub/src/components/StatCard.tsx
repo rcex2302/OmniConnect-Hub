@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface StatCardProps {
   title: string;
@@ -25,37 +25,19 @@ export function StatCard({
   isLoading = false,
   formatNumber = false,
 }: StatCardProps) {
-  const [animatedValue, setAnimatedValue] = useState(0);
+  // وميض خفيف عندما تتغير القيمة (بدون تأثير عدّ متحرك)
+  const prevValue = useRef(value);
+  const [justChanged, setJustChanged] = useState(false);
 
-  // تحريك الأرقام بشكل ناعم (easeOutCubic) عند تغيير القيمة
   useEffect(() => {
-    if (typeof value !== 'number' || isLoading) {
-      if (typeof value === 'number') setAnimatedValue(value);
-      return undefined;
+    if (prevValue.current !== value && !isLoading) {
+      setJustChanged(true);
+      const t = setTimeout(() => setJustChanged(false), 600);
+      prevValue.current = value;
+      return () => clearTimeout(t);
     }
-
-    const startValue = animatedValue;
-    const endValue = value;
-    if (startValue === endValue) return undefined;
-
-    const duration = 900; // 0.9 ثانية لانتقال ناعم وواضح
-    const startTime = performance.now();
-    let raf = 0;
-
-    // easeOutCubic: حركة تبدأ سريعة وتنتهي ببطء
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / duration);
-      const eased = easeOutCubic(progress);
-      const next = startValue + (endValue - startValue) * eased;
-      setAnimatedValue(progress >= 1 ? endValue : next);
-      if (progress < 1) raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    prevValue.current = value;
+    return undefined;
   }, [value, isLoading]);
 
   const TrendIcon =
@@ -75,8 +57,6 @@ export function StatCard({
     return val;
   };
 
-  const displayValue = typeof value === 'number' && !isLoading ? animatedValue : value;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -86,7 +66,9 @@ export function StatCard({
       className="relative group"
     >
       <div
-        className={`absolute inset-0 bg-gradient-to-r ${accentColor} rounded-2xl blur-xl opacity-60 transition-all duration-500 group-hover:opacity-100`}
+        className={`absolute inset-0 bg-gradient-to-r ${accentColor} rounded-2xl blur-xl transition-opacity duration-500 ${
+          justChanged ? "opacity-100" : "opacity-60"
+        } group-hover:opacity-100`}
       />
       <div className="relative bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.37)] overflow-hidden h-full">
         <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:left-[100%] transition-all duration-1000 ease-in-out pointer-events-none" />
@@ -102,8 +84,12 @@ export function StatCard({
           )}
         </div>
 
-        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 font-mono tracking-tight">
-          {isLoading ? "..." : formatValue(displayValue)}
+        <h3
+          className={`text-2xl sm:text-3xl font-bold mb-2 font-mono tracking-tight transition-colors duration-500 ${
+            justChanged ? "text-cyan-300" : "text-white"
+          }`}
+        >
+          {isLoading ? "..." : formatValue(value)}
         </h3>
 
         {trend && trendValue && !isLoading && (
