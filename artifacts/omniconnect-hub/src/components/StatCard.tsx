@@ -38,7 +38,7 @@ export function StatCard({
     const endValue = value;
     if (startValue === endValue) return undefined;
 
-    const duration = 1600; // 1.6 ثانية لانتقال ناعم
+    const duration = 900; // 0.9 ثانية لانتقال ناعم وواضح
     const startTime = performance.now();
     let raf = 0;
 

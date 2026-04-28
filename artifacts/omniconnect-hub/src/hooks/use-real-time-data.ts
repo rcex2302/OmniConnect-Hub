@@ -36,47 +36,68 @@ const getInitialData = (): RealTimeData => ({
   totalPorts: 342,
   fuelConsumption: 12450,
   co2Emission: 8720,
-  systemEfficiency: 96.8
+  systemEfficiency: 96.8,
 });
+
+// تذبذب صغير حول قيمة محورية (لتجنب الانحراف الطويل المدى)
+const driftToward = (current: number, anchor: number, drift: number, jitter: number) => {
+  const pull = (anchor - current) * 0.04; // قوة سحب نحو القيمة المحورية
+  const random = (Math.random() * 2 - 1) * jitter;
+  return current + pull + drift + random;
+};
 
 export const useRealTimeData = () => {
   const [data, setData] = useState<RealTimeData>(getInitialData());
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<AnalysisResult | null>(null);
   const pausedRef = useRef(false);
+  const tickRef = useRef(0);
 
   useEffect(() => {
-    // مساعد لتغيّرات صغيرة وناعمة (احتمال كبير لعدم التغيير)
-    const tinyDelta = (max: number) => {
-      // 60% من الوقت: لا تغيير، 40%: تغيير صغير ±max
-      if (Math.random() < 0.6) return 0;
-      return Math.round((Math.random() * 2 - 1) * max);
-    };
-
     const interval = setInterval(() => {
       if (pausedRef.current) return;
-      setData(prevData => ({
-        // الشحنات الإجمالية: غالباً تزداد ببطء
-        totalShipments:
-          prevData.totalShipments + (Math.random() < 0.7 ? 1 : 0),
-        // الشحنات النشطة: تذبذب صغير ±1
-        activeShipments: prevData.activeShipments + tinyDelta(1),
-        // الشحنات المتأخرة: تتغير بشكل نادر فقط
-        delayedShipments: Math.max(
-          0,
-          prevData.delayedShipments + (Math.random() < 0.1 ? (Math.random() < 0.5 ? -1 : 1) : 0),
-        ),
-        totalPorts: prevData.totalPorts,
-        // الوقود: تغيّرات بسيطة على رقم بآلاف اللترات (غير محسوسة بصرياً)
-        fuelConsumption: prevData.fuelConsumption + tinyDelta(3),
-        // الانبعاثات: تغيّرات بسيطة جداً
-        co2Emission: prevData.co2Emission + tinyDelta(2),
-        // الكفاءة: تغيّر دقيق جداً (±0.05%)
-        systemEfficiency: Math.min(
+      tickRef.current += 1;
+
+      setData(prev => {
+        // الشحنات الإجمالية: تنمو دائماً (+1 إلى +4) — كأنها شحنات جديدة تسجَّل
+        const totalShipments = prev.totalShipments + 1 + Math.floor(Math.random() * 4);
+
+        // الشحنات النشطة: تتذبذب ±3 حول 3250
+        const activeShipments = Math.round(
+          driftToward(prev.activeShipments, 3250, 0, 3),
+        );
+
+        // الشحنات المتأخرة: تتغير ببطء ±1 كل عدة دورات
+        let delayedShipments = prev.delayedShipments;
+        if (tickRef.current % 3 === 0) {
+          delayedShipments = Math.max(
+            5,
+            Math.min(28, delayedShipments + (Math.random() < 0.5 ? -1 : 1)),
+          );
+        }
+
+        // الوقود: يزداد بشكل مستمر (+8 إلى +25 لتر/ثانيتين)
+        const fuelConsumption = prev.fuelConsumption + 8 + Math.floor(Math.random() * 18);
+
+        // الانبعاثات: تزداد كذلك (+5 إلى +18 كغم/ثانيتين)
+        const co2Emission = prev.co2Emission + 5 + Math.floor(Math.random() * 14);
+
+        // الكفاءة: تتذبذب ±0.3 حول 96.5%
+        const systemEfficiency = Math.min(
           99.9,
-          Math.max(92, prevData.systemEfficiency + (Math.random() * 0.1 - 0.05)),
-        ),
-      }));
+          Math.max(92, driftToward(prev.systemEfficiency, 96.5, 0, 0.3)),
+        );
+
+        return {
+          totalShipments,
+          activeShipments,
+          delayedShipments,
+          totalPorts: prev.totalPorts,
+          fuelConsumption,
+          co2Emission,
+          systemEfficiency: +systemEfficiency.toFixed(2),
+        };
+      });
     }, 2000);
 
     return () => clearInterval(interval);

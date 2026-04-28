@@ -56,6 +56,11 @@ function Router() {
             <Themes />
           </PageWrapper>
         </Route>
+        <Route path="/404">
+          <PageWrapper>
+            <NotFound />
+          </PageWrapper>
+        </Route>
         {/* المسار الافتراضي = صفحة 404 داخل نفس الـ Layout */}
         <Route>
           <PageWrapper>

@@ -10,6 +10,7 @@ import {
   Activity,
   Leaf,
   Palette,
+  AlertTriangle,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -48,6 +49,12 @@ const navigation = [
     href: "/themes",
     icon: Palette,
     description: "Customize your colors",
+  },
+  {
+    name: "404 Page",
+    href: "/404",
+    icon: AlertTriangle,
+    description: "Custom error page preview",
   },
 ];
 
