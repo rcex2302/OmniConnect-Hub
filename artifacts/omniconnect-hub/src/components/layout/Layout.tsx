@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { Footer } from "@/components/Footer";
 
 export function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="lg:ps-72 relative z-10 min-h-screen flex flex-col">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1">{children}</main>
+        <Footer />
       </div>
     </div>
   );

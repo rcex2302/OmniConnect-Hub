@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Ship,
@@ -12,17 +12,33 @@ import { Globe3D } from "@/components/Globe3D";
 import { StatCard } from "@/components/StatCard";
 import { WeatherWidget } from "@/components/WeatherWidget";
 import { ShipmentRow } from "@/components/ShipmentRow";
+import { DemoActions } from "@/components/DemoActions";
 import { StatCardSkeleton, GlobeSkeleton, ShipmentRowSkeleton } from "@/components/ui/skeleton";
-import { PORTS, generateShipments } from "@/lib/mockData";
+import { PORTS, generateShipments, type Shipment } from "@/lib/mockData";
 import { useRealTimeData } from "@/hooks/use-real-time-data";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const realTimeData = useRealTimeData();
+  const { data: realTimeData, isAnalyzing, runAnalysis } = useRealTimeData();
 
-  const recentShipments = useMemo(() => generateShipments(4), []);
+  const [shipments, setShipments] = useState<Shipment[]>(() =>
+    generateShipments(4),
+  );
   const featuredPorts = useMemo(() => PORTS.slice(0, 6), []);
+
+  const simulateShipment = useCallback(() => {
+    const fresh = generateShipments(1)[0]!;
+    const ts = Date.now();
+    const newShipment: Shipment = {
+      ...fresh,
+      id: `ship-sim-${ts}`,
+      trackingNumber: `OCH-${String(ts).slice(-7)}`,
+      status: "loading",
+      progress: Math.floor(Math.random() * 8),
+    };
+    setShipments((prev) => [newShipment, ...prev].slice(0, 8));
+  }, []);
 
   // محاكاة وقت التحميل
   useEffect(() => {
@@ -32,6 +48,15 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      {/* Demo actions */}
+      {!isLoading && (
+        <DemoActions
+          onSimulateShipment={simulateShipment}
+          onRunAnalysis={runAnalysis}
+          isAnalyzing={isAnalyzing}
+        />
+      )}
+
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {isLoading ? (
@@ -168,7 +193,7 @@ export default function Dashboard() {
                 <ShipmentRowSkeleton />
               </>
             ) : (
-              recentShipments.map((s, i) => (
+              shipments.map((s, i) => (
                 <ShipmentRow key={s.id} shipment={s} delay={0.6 + i * 0.1} />
               ))
             )}

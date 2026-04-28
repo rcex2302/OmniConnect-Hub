@@ -23,8 +23,21 @@ Source: https://github.com/rcex2302/OmniConnect-Hub
 
 - `artifacts/omniconnect-hub/` — main React+Vite frontend (the dashboard)
   - `src/pages/` — Dashboard, Tracking, Analytics, Sustainability, Themes, NotFound
-  - `src/components/` — Globe3D, LoadingOverlay, ShipmentRow, StatCard, WeatherWidget, layout/, ui/
+  - `src/components/` — Globe3D, LoadingOverlay, ShipmentRow, StatCard, WeatherWidget, DemoActions, Footer, layout/, ui/
   - `src/contexts/`, `src/hooks/`, `src/lib/`
+
+## ThemeForest-Ready Features
+
+1. **Real-time data** — `useRealTimeData` hook ticks every 2s (totals, efficiency, fuel, CO₂).
+2. **Loading states** — page-level `LoadingOverlay` plus per-card skeletons (StatCardSkeleton, GlobeSkeleton, ShipmentRowSkeleton).
+3. **404 page** — branded `pages/not-found.tsx` route.
+4. **Demo interactions** — `DemoActions` on the Dashboard with two buttons:
+   - *Simulate Shipment* — prepends a new shipment (status: loading) to the Recent Shipments list.
+   - *Run Smart Analysis* — pauses the live tick, applies an efficiency boost + CO₂/fuel reduction, then resumes; surfaces a recommendation via toast.
+5. **Professional footer** — `Footer` component rendered globally in `layout/Layout.tsx`: brand block, contact info, social icons, Product/Company link columns, ISO/SOC trust badges, copyright, legal links.
+
+## Other Artifacts
+
 - `artifacts/api-server/` — bundled scaffold Express API (currently unused by the dashboard)
 - `artifacts/mockup-sandbox/` — design prototyping sandbox
 
