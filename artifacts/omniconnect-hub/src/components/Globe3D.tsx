@@ -3,6 +3,7 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { OrbitControls, Stars, Line } from "@react-three/drei";
 import * as THREE from "three";
 import { PORTS, latLngToVec3 } from "@/lib/mockData";
+import { useDevicePerformance, usePageVisible } from "@/hooks/use-device-performance";
 
 const GLOBE_RADIUS = 2.5;
 
@@ -192,25 +193,43 @@ function Satellite({ orbit }: { orbit: number }) {
   );
 }
 
-function EarthMesh() {
+function EarthMesh({
+  globeSegments,
+  cloudSegments,
+  tier,
+}: {
+  globeSegments: number;
+  cloudSegments: number;
+  tier: "low" | "medium" | "high";
+}) {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
 
-  const [colorMap, normalMap, specularMap, cloudsMap] = useLoader(
-    THREE.TextureLoader,
-    [EARTH_TEXTURE_URL, EARTH_NORMAL_URL, EARTH_SPECULAR_URL, CLOUDS_TEXTURE_URL],
+  // الأجهزة الضعيفة: حمّل الـ color map فقط (نوفر 3 ملفات نسيج)
+  const textureUrls = useMemo(
+    () =>
+      tier === "low"
+        ? [EARTH_TEXTURE_URL]
+        : [EARTH_TEXTURE_URL, EARTH_NORMAL_URL, EARTH_SPECULAR_URL, CLOUDS_TEXTURE_URL],
+    [tier],
   );
 
+  const textures = useLoader(THREE.TextureLoader, textureUrls);
+  const colorMap = textures[0]!;
+  const normalMap = tier === "low" ? null : textures[1] ?? null;
+  const specularMap = tier === "low" ? null : textures[2] ?? null;
+  const cloudsMap = tier === "low" ? null : textures[3] ?? null;
+
   useMemo(() => {
-    [colorMap, normalMap, specularMap, cloudsMap].forEach((tex) => {
+    textures.forEach((tex) => {
       if (tex) {
-        tex.anisotropy = 4;
+        tex.anisotropy = tier === "high" ? 4 : 2;
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.generateMipmaps = true;
         tex.minFilter = THREE.LinearMipmapLinearFilter;
       }
     });
-  }, [colorMap, normalMap, specularMap, cloudsMap]);
+  }, [textures, tier]);
 
   useFrame((_, delta) => {
     if (earthRef.current) earthRef.current.rotation.y += delta * 0.02;
@@ -219,13 +238,12 @@ function EarthMesh() {
 
   return (
     <group>
-      {/* Realistic Earth — reduced poly count from 96 to 48 (4x fewer triangles) */}
       <mesh ref={earthRef}>
-        <sphereGeometry args={[GLOBE_RADIUS, 48, 48]} />
+        <sphereGeometry args={[GLOBE_RADIUS, globeSegments, globeSegments]} />
         <meshStandardMaterial
           map={colorMap}
-          normalMap={normalMap}
-          roughnessMap={specularMap}
+          normalMap={normalMap ?? undefined}
+          roughnessMap={specularMap ?? undefined}
           metalness={0.15}
           roughness={0.85}
           emissive="#0a1f3d"
@@ -233,16 +251,18 @@ function EarthMesh() {
         />
       </mesh>
 
-      {/* Clouds — reduced poly */}
-      <mesh ref={cloudsRef}>
-        <sphereGeometry args={[GLOBE_RADIUS + 0.025, 32, 32]} />
-        <meshStandardMaterial
-          map={cloudsMap}
-          transparent
-          opacity={0.4}
-          depthWrite={false}
-        />
-      </mesh>
+      {/* الغيوم — تظهر فقط على medium/high */}
+      {cloudsMap && (
+        <mesh ref={cloudsRef}>
+          <sphereGeometry args={[GLOBE_RADIUS + 0.025, cloudSegments, cloudSegments]} />
+          <meshStandardMaterial
+            map={cloudsMap}
+            transparent
+            opacity={0.4}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -306,12 +326,18 @@ function Scene({
   showSatellites,
   themeColor,
   themeSecondary,
+  globeSegments,
+  cloudSegments,
+  tier,
 }: {
   showRoutes: boolean;
   routeCount: number;
   showSatellites: boolean;
   themeColor?: string;
   themeSecondary?: string;
+  globeSegments: number;
+  cloudSegments: number;
+  tier: "low" | "medium" | "high";
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -378,7 +404,11 @@ function Scene({
   return (
     <group ref={groupRef}>
       <Suspense fallback={<FallbackEarth />}>
-        <EarthMesh />
+        <EarthMesh
+          globeSegments={globeSegments}
+          cloudSegments={cloudSegments}
+          tier={tier}
+        />
       </Suspense>
 
       <Atmosphere
@@ -438,27 +468,37 @@ interface Globe3DProps {
 
 export function Globe3D({
   showRoutes = true,
-  routeCount = 8,
-  showSatellites = true,
+  routeCount,
+  showSatellites,
   enableControls = true,
   className = "absolute inset-0 z-0 w-full h-full",
   themeColor,
   themeSecondary,
 }: Globe3DProps) {
+  // إعدادات تلقائية حسب قدرة الجهاز
+  const perf = useDevicePerformance();
+  // إيقاف الرسم عندما يكون التبويب مخفياً (يوفر CPU/بطارية)
+  const isVisible = usePageVisible();
+
+  // الإعدادات النهائية: ما يأتي من الـ props يفوز، وإلا نستخدم القيمة الافتراضية حسب الجهاز
+  const finalRouteCount = routeCount ?? perf.routeCount;
+  const finalShowSatellites = showSatellites ?? perf.showSatellites;
+
   return (
     <div className={className}>
       <Canvas
         camera={{ position: [0, 0, 7], fov: 45 }}
         gl={{
-          antialias: true,
+          antialias: perf.tier !== "low",
           alpha: true,
-          powerPreference: "high-performance",
+          powerPreference:
+            perf.tier === "low" ? "low-power" : "high-performance",
           stencil: false,
         }}
-        dpr={[1, 1.5]}
-        frameloop="always"
+        dpr={perf.dpr}
+        // إيقاف حلقة الرسم تماماً عندما يكون التبويب مخفياً
+        frameloop={isVisible ? "always" : "never"}
       >
-        {/* Single key directional light + soft fill — no per-vessel point lights */}
         <ambientLight intensity={0.35} />
         <directionalLight
           position={[5, 3, 5]}
@@ -474,7 +514,7 @@ export function Globe3D({
         <Stars
           radius={120}
           depth={50}
-          count={2500}
+          count={perf.starCount}
           factor={4}
           saturation={0}
           fade
@@ -483,10 +523,13 @@ export function Globe3D({
 
         <Scene
           showRoutes={showRoutes}
-          routeCount={routeCount}
-          showSatellites={showSatellites}
+          routeCount={finalRouteCount}
+          showSatellites={finalShowSatellites}
           themeColor={themeColor}
           themeSecondary={themeSecondary}
+          globeSegments={perf.globeSegments}
+          cloudSegments={perf.cloudSegments}
+          tier={perf.tier}
         />
 
         {enableControls && (
@@ -494,7 +537,7 @@ export function Globe3D({
             enablePan={false}
             minDistance={4.5}
             maxDistance={10}
-            autoRotate
+            autoRotate={!perf.prefersReducedMotion}
             autoRotateSpeed={0.25}
             enableDamping
             dampingFactor={0.08}
