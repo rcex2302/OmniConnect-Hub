@@ -1,0 +1,14 @@
+[build]
+  command       = "pnpm install && pnpm run build"
+  publish       = "artifacts/omniconnect-hub/dist/public"
+  base          = "."
+
+[build.environment]
+  NODE_VERSION  = "20"
+  PORT          = "5173"
+
+# SPA routing — redirect all 404s back to index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
