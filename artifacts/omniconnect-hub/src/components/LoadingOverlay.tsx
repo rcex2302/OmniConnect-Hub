@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 
 // ==========================================
-// 🎯 شاشة تحميل احترافية مع مراحل واضحة
-// تعرض هوية المنتج، تقدم حقيقي، ومؤشرات ثقة
+// 🎯 Professional loading screen with clear stages
+// Displays product identity, real progress, and trust indicators
 // ==========================================
 
 interface LoadingOverlayProps {
@@ -40,7 +40,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
   useEffect(() => {
     if (!isLoading) return;
 
-    // تحريك التقدم بشكل سلس عبر المراحل
+    // Smooth progress movement across stages
     const startTime = performance.now();
     let raf = 0;
 
@@ -49,7 +49,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
       const pct = Math.min(100, (elapsed / TOTAL_DURATION) * 100);
       setProgress(pct);
 
-      // حساب المرحلة الحالية بناءً على الوقت المنقضي
+      // Calculate current stage based on elapsed time
       let acc = 0;
       let stageIdx = 0;
       for (let i = 0; i < STAGES.length; i++) {
@@ -84,7 +84,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
         >
-          {/* خلفية متعددة الطبقات */}
+          {/* Multi-layered background */}
           <div className="absolute inset-0 bg-slate-950" />
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/50 via-slate-950 to-blue-950/30" />
 
@@ -110,14 +110,14 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
             className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
           />
 
-          {/* المحتوى الرئيسي */}
+          {/* Main content */}
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.4 }}
             className="relative z-10 w-full max-w-md px-6"
           >
-            {/* الشعار + اسم المنتج */}
+            {/* Logo + product name */}
             <div className="flex flex-col items-center mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
@@ -135,7 +135,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
                       "conic-gradient(from 0deg, transparent, rgba(34,211,238,0.4), transparent)",
                   }}
                 />
-                {/* الشعار في المنتصف */}
+                {/* Logo in center */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/40">
                     <Activity className="w-7 h-7 text-white" strokeWidth={2.5} />
@@ -161,7 +161,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
               </motion.p>
             </div>
 
-            {/* قائمة المراحل */}
+            {/* Stages list */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -238,7 +238,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
                 })}
               </div>
 
-              {/* شريط التقدم */}
+              {/* Progress bar */}
               <div className="mt-4 pt-4 border-t border-white/5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase">
@@ -268,7 +268,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
               </div>
             </motion.div>
 
-            {/* مؤشرات الثقة */}
+            {/* Trust indicators */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

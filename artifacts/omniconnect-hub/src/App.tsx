@@ -61,7 +61,7 @@ function Router() {
             <NotFound />
           </PageWrapper>
         </Route>
-        {/* المسار الافتراضي = صفحة 404 داخل نفس الـ Layout */}
+        {/* Default route = 404 page inside same Layout */}
         <Route>
           <PageWrapper>
             <NotFound />

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ==========================================
-// 📊 نظام البيانات المتغيرة في الوقت الفعلي
-// كل ثانيتين: نُحدِّث 2 إلى 3 أرقام فقط بتغيير صغير جداً
+// 📊 Real-time data fluctuation system
+// Every 2 seconds: update 2 to 3 numbers with tiny changes
 // ==========================================
 
 export interface RealTimeData {
@@ -40,7 +40,7 @@ const getInitialData = (): RealTimeData => ({
   systemEfficiency: 96.8,
 });
 
-// المفاتيح القابلة للتحديث (totalPorts ثابت)
+// Updatable keys (totalPorts is static)
 const UPDATABLE_KEYS = [
   'totalShipments',
   'activeShipments',
@@ -52,23 +52,23 @@ const UPDATABLE_KEYS = [
 
 type UpdatableKey = (typeof UPDATABLE_KEYS)[number];
 
-// تطبيق تغيير صغير فقط على المفتاح المُختار
+  // Apply tiny change only to the selected key
 const applyTinyChange = (key: UpdatableKey, current: number): number => {
   switch (key) {
     case 'totalShipments':
-      // +1 إلى +3 (شحنات تُسجَّل)
+      // +1 to +3 (shipments registered)
       return current + 1 + Math.floor(Math.random() * 3);
     case 'activeShipments':
-      // ±1 أو ±2 حول 3250
+      // ±1 or ±2 around 3250
       return current + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2));
     case 'delayedShipments':
-      // ±1 ضمن نطاق 5..28
+      // ±1 within range 5..28
       return Math.max(5, Math.min(28, current + (Math.random() < 0.5 ? -1 : 1)));
     case 'fuelConsumption':
-      // +2 إلى +5
+      // +2 to +5
       return current + 2 + Math.floor(Math.random() * 4);
     case 'co2Emission':
-      // +1 إلى +3
+      // +1 to +3
       return current + 1 + Math.floor(Math.random() * 3);
     case 'systemEfficiency':
       // ±0.1
@@ -76,7 +76,7 @@ const applyTinyChange = (key: UpdatableKey, current: number): number => {
   }
 };
 
-// اختيار 2 أو 3 مفاتيح عشوائياً دون تكرار
+// Select 2 or 3 keys randomly without repetition
 const pickKeys = (count: number): UpdatableKey[] => {
   const pool = [...UPDATABLE_KEYS];
   const result: UpdatableKey[] = [];
@@ -98,7 +98,7 @@ export const useRealTimeData = () => {
     const interval = setInterval(() => {
       if (pausedRef.current) return;
 
-      // 2 أو 3 أرقام فقط في كل دورة
+      // Only 2 or 3 numbers per cycle
       const count = Math.random() < 0.5 ? 2 : 3;
       const keysToUpdate = pickKeys(count);
 

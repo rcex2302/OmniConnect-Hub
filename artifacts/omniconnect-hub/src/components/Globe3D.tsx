@@ -205,7 +205,7 @@ function EarthMesh({
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
 
-  // الأجهزة الضعيفة: حمّل الـ color map فقط (نوفر 3 ملفات نسيج)
+  // Low-end devices: load color map only (save 3 texture files)
   const textureUrls = useMemo(
     () =>
       tier === "low"
@@ -251,7 +251,7 @@ function EarthMesh({
         />
       </mesh>
 
-      {/* الغيوم — تظهر فقط على medium/high */}
+      {/* Clouds — only shown on medium/high tier */}
       {cloudsMap && (
         <mesh ref={cloudsRef}>
           <sphereGeometry args={[GLOBE_RADIUS + 0.025, cloudSegments, cloudSegments]} />
@@ -475,12 +475,12 @@ export function Globe3D({
   themeColor,
   themeSecondary,
 }: Globe3DProps) {
-  // إعدادات تلقائية حسب قدرة الجهاز
+  // Automatic settings based on device capability
   const perf = useDevicePerformance();
-  // إيقاف الرسم عندما يكون التبويب مخفياً (يوفر CPU/بطارية)
+  // Stop rendering when tab is hidden (saves CPU/battery)
   const isVisible = usePageVisible();
 
-  // الإعدادات النهائية: ما يأتي من الـ props يفوز، وإلا نستخدم القيمة الافتراضية حسب الجهاز
+  // Final settings: props override, otherwise use device-based defaults
   const finalRouteCount = routeCount ?? perf.routeCount;
   const finalShowSatellites = showSatellites ?? perf.showSatellites;
 
@@ -496,7 +496,7 @@ export function Globe3D({
           stencil: false,
         }}
         dpr={perf.dpr}
-        // إيقاف حلقة الرسم تماماً عندما يكون التبويب مخفياً
+        // Completely stop render loop when tab is hidden
         frameloop={isVisible ? "always" : "never"}
       >
         <ambientLight intensity={0.35} />

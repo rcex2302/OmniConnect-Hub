@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 // ==========================================
-// 🎛️ كشف قدرات الجهاز لضبط جودة العرض
-// يقيّم: عدد أنوية المعالج، الذاكرة، نوع الاتصال، الجوال
+// 🎛️ Device capability detection for display quality adjustment
+// Evaluates: CPU cores, memory, connection type, mobile
 // ==========================================
 
 export type PerformanceTier = "low" | "medium" | "high";
@@ -11,7 +11,7 @@ interface DevicePerformance {
   tier: PerformanceTier;
   isMobile: boolean;
   prefersReducedMotion: boolean;
-  // إعدادات جاهزة للاستخدام في Three.js
+  // Ready-to-use settings for Three.js
   globeSegments: number;
   cloudSegments: number;
   starCount: number;
@@ -49,7 +49,7 @@ const detect = (): DevicePerformance => {
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
-  // اتصال شبكي بطيء = جودة منخفضة
+  // Slow network connection = low quality
   const conn = (navigator as Navigator & {
     connection?: { effectiveType?: string; saveData?: boolean };
   }).connection;
@@ -58,7 +58,7 @@ const detect = (): DevicePerformance => {
     conn?.effectiveType === "slow-2g" ||
     conn?.effectiveType === "2g";
 
-  // تصنيف القدرة
+  // Performance classification
   let tier: PerformanceTier = "high";
   if (
     cores < 4 ||
@@ -72,7 +72,7 @@ const detect = (): DevicePerformance => {
     tier = "medium";
   }
 
-  // إعدادات حسب التصنيف
+  // Settings based on classification
   const presets: Record<PerformanceTier, Omit<DevicePerformance, "tier" | "isMobile" | "prefersReducedMotion">> = {
     low: {
       globeSegments: 32,
@@ -117,7 +117,7 @@ export const useDevicePerformance = (): DevicePerformance => {
 };
 
 // ==========================================
-// 👁️ Page Visibility API: نوقف الرسوم عندما يكون التبويب مخفياً
+// 👁️ Page Visibility API: Stop rendering when tab is hidden
 // ==========================================
 export const usePageVisible = (): boolean => {
   const [visible, setVisible] = useState(() =>

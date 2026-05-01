@@ -40,7 +40,7 @@ export default function Dashboard() {
     setShipments((prev) => [newShipment, ...prev].slice(0, 8));
   }, []);
 
-  // محاكاة وقت التحميل
+  // Simulate loading time
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2500);
     return () => clearTimeout(timer);

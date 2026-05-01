@@ -25,7 +25,7 @@ export function StatCard({
   isLoading = false,
   formatNumber = false,
 }: StatCardProps) {
-  // وميض خفيف عندما تتغير القيمة (بدون تأثير عدّ متحرك)
+  // Subtle flash when value changes (without counting animation)
   const prevValue = useRef(value);
   const [justChanged, setJustChanged] = useState(false);
 

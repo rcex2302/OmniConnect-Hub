@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 // ==========================================
-// 🦴 مكونات الهياكل العظمية (Skeleton UI)
+// 🦴 Skeleton UI components
 // ==========================================
 
 function Skeleton({
@@ -16,7 +16,7 @@ function Skeleton({
   )
 }
 
-// هيكل عظمي محسن مع تأثير متحرك
+// Enhanced skeleton with animated effect
 export const SkeletonLoader = ({ className }: { className?: string }) => {
   return (
     <div
@@ -28,7 +28,7 @@ export const SkeletonLoader = ({ className }: { className?: string }) => {
   );
 };
 
-// هيكل عظمي لبطاقة الإحصائيات
+// Skeleton for statistics card
 export const StatCardSkeleton = () => {
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
@@ -42,7 +42,7 @@ export const StatCardSkeleton = () => {
   );
 };
 
-// هيكل عظمي للشحنة
+// Skeleton for shipment
 export const ShipmentRowSkeleton = () => {
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
@@ -64,7 +64,7 @@ export const ShipmentRowSkeleton = () => {
   );
 };
 
-// هيكل عظمي للكرة الأرضية
+// Skeleton for globe
 export const GlobeSkeleton = () => {
   return (
     <div className="relative w-full h-96 bg-slate-800/50 rounded-xl overflow-hidden">
@@ -75,7 +75,7 @@ export const GlobeSkeleton = () => {
           <SkeletonLoader className="h-4 w-48 mx-auto" />
         </div>
       </div>
-      {/* محاكاة نقاط الموانئ */}
+      {/* Simulate port points */}
       <div className="absolute top-1/4 left-1/4">
         <SkeletonLoader className="h-3 w-3 rounded-full animate-pulse" />
       </div>
@@ -89,7 +89,7 @@ export const GlobeSkeleton = () => {
   );
 };
 
-// هيكل عظمي للرسم البياني
+// Skeleton for chart
 export const ChartSkeleton = () => {
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
