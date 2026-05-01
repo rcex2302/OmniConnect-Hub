@@ -254,7 +254,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
                     style={{ width: `${progress}%` }}
                     transition={{ duration: 0.1 }}
                   />
-                  {/* تأثير لمعان */}
+                  {/* Shine effect */}
                   <motion.div
                     animate={{ x: ["-100%", "200%"] }}
                     transition={{

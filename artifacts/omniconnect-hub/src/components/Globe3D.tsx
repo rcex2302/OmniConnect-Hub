@@ -251,7 +251,7 @@ function EarthMesh({
         />
       </mesh>
 
-      {/* Clouds — only shown on medium/high tier */}
+      {/* Clouds — only show on medium/high performance */}
       {cloudsMap && (
         <mesh ref={cloudsRef}>
           <sphereGeometry args={[GLOBE_RADIUS + 0.025, cloudSegments, cloudSegments]} />
