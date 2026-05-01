@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OmniConnect Hub — Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #080d14;
+      --surface:   #0e1620;
+      --border:    rgba(255,255,255,0.07);
+      --primary:   #22d3ee;
+      --primary2:  #3b82f6;
+      --accent:    #a78bfa;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --success:   #10b981;
+      --warning:   #f59e0b;
+      --danger:    #f43f5e;
+      --code-bg:   #0d1a26;
+      --radius:    14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.75; }
+
+    .wrapper { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+      overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border);
+      padding: 32px 0; display: flex; flex-direction: column; gap: 2px;
+    }
+    .sidebar-brand { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-brand .logo { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar-brand .version { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .nav-group-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; padding: 16px 24px 6px; }
+    nav.sidebar a { display: flex; align-items: center; gap: 10px; padding: 8px 24px; font-size: 13.5px; color: #94a3b8; text-decoration: none; border-left: 2px solid transparent; transition: all 0.18s; }
+    nav.sidebar a:hover, nav.sidebar a.active { color: var(--primary); background: rgba(34,211,238,0.06); border-left-color: var(--primary); }
+    nav.sidebar a .icon { font-size: 15px; }
+
+    main { flex: 1; min-width: 0; padding: 56px 64px; max-width: 900px; }
+
+    .hero { position: relative; background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(59,130,246,0.06), rgba(167,139,250,0.06)); border: 1px solid var(--border); border-radius: 20px; padding: 48px; margin-bottom: 56px; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(34,211,238,0.07), transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,211,238,0.12); border: 1px solid rgba(34,211,238,0.25); color: var(--primary); font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 12px; border-radius: 99px; margin-bottom: 20px; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; line-height: 1.1; letter-spacing: -1px; background: linear-gradient(135deg, #fff 30%, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+    .hero p { color: #94a3b8; font-size: 15px; max-width: 520px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+    .tag { font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); }
+    .tag.blue   { border-color: rgba(59,130,246,0.35);  color: #93c5fd; background: rgba(59,130,246,0.08); }
+    .tag.cyan   { border-color: rgba(34,211,238,0.35);  color: var(--primary); background: rgba(34,211,238,0.08); }
+    .tag.purple { border-color: rgba(167,139,250,0.35); color: var(--accent); background: rgba(167,139,250,0.08); }
+    .tag.green  { border-color: rgba(16,185,129,0.35);  color: #6ee7b7; background: rgba(16,185,129,0.08); }
+
+    section { margin-bottom: 64px; scroll-margin-top: 32px; }
+    h2.section-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; }
+    h2.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-sub { color: var(--muted); font-size: 13.5px; margin-bottom: 28px; }
+    h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #cbd5e1; margin: 32px 0 12px; }
+    p { color: #94a3b8; margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 28px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
+    .card:hover { border-color: rgba(34,211,238,0.25); }
+    .card-icon { font-size: 22px; margin-bottom: 10px; }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 16px 0; overflow-x: auto; }
+    .code-block pre { font-family: 'DM Mono', monospace; font-size: 13px; color: #7dd3fc; line-height: 1.8; white-space: pre; }
+    .comment { color: #475569; }
+    .cmd     { color: var(--primary); }
+    .str     { color: #86efac; }
+    .key     { color: var(--accent); }
+
+    .steps { display: flex; flex-direction: column; gap: 16px; }
+    .step { display: flex; gap: 18px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .step-num { width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary2)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: #000; }
+    .step-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 6px; }
+    .step-desc { font-size: 13px; color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead tr { background: rgba(34,211,238,0.07); border-bottom: 1px solid var(--border); }
+    th { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--primary); padding: 12px 16px; text-align: left; }
+    td { padding: 11px 16px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    td code { font-family: 'DM Mono', monospace; font-size: 12px; background: rgba(34,211,238,0.1); color: var(--primary); padding: 2px 7px; border-radius: 5px; }
+
+    .themes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .theme-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .swatch { width: 100%; height: 8px; border-radius: 99px; margin-bottom: 12px; }
+    .theme-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+    .theme-desc { font-size: 11.5px; color: var(--muted); }
+
+    .alert { border-radius: var(--radius); padding: 16px 20px; margin: 20px 0; border-left: 3px solid; font-size: 13.5px; }
+    .alert-info    { background: rgba(59,130,246,0.08);  border-color: var(--primary2); color: #93c5fd; }
+    .alert-success { background: rgba(16,185,129,0.08);  border-color: var(--success);  color: #6ee7b7; }
+    .alert-warning { background: rgba(245,158,11,0.08);  border-color: var(--warning);  color: #fcd34d; }
+    .alert strong { font-weight: 600; }
+
+    code { font-family: 'DM Mono', monospace; font-size: 12.5px; background: rgba(34,211,238,0.09); color: var(--primary); padding: 2px 7px; border-radius: 5px; }
+
+    footer { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 12.5px; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+    /* ── MOBILE TOPBAR ─────────────────────────── */
+    .mobile-topbar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 200;
+    }
+    .mobile-topbar .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .hamburger span {
+      display: block;
+      height: 2px;
+      background: #94a3b8;
+      border-radius: 2px;
+      transition: all 0.25s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── OVERLAY ───────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 149;
+      backdrop-filter: blur(2px);
+    }
+    .overlay.visible { display: block; }
+
+    /* ── RESPONSIVE BREAKPOINTS ────────────────── */
+
+    /* Tablet: 768px – 1024px */
+    @media (max-width: 1024px) {
+      nav.sidebar { width: 220px; }
+      main { padding: 48px 40px; }
+      .hero { padding: 36px; }
+      .hero h1 { font-size: 32px; }
+      .themes-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Mobile: ≤ 768px */
+    @media (max-width: 768px) {
+      .mobile-topbar { display: flex; }
+
+      nav.sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 150;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+        padding-top: 72px;
+        box-shadow: 4px 0 32px rgba(0,0,0,0.4);
+      }
+      nav.sidebar.open { transform: translateX(0); }
+
+      .wrapper { display: block; }
+
+      main {
+        padding: 80px 20px 40px;
+        max-width: 100%;
+      }
+
+      .hero { padding: 28px 24px; margin-bottom: 40px; border-radius: 16px; }
+      .hero h1 { font-size: 28px; letter-spacing: -0.5px; }
+      .hero p { font-size: 14px; }
+      .hero-tags { gap: 6px; }
+
+      h2.section-title { font-size: 20px; }
+      h2.section-title::after { display: none; }
+
+      .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .card { padding: 16px; }
+
+      .themes-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+      /* Make tables scrollable on small screens */
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); border: 1px solid var(--border); }
+      .table-wrap table { border: none; border-radius: 0; min-width: 480px; }
+      table { font-size: 12.5px; }
+      th, td { padding: 10px 12px; }
+
+      .code-block { padding: 16px; border-radius: 10px; }
+      .code-block pre { font-size: 12px; }
+
+      .step { padding: 16px; gap: 14px; }
+      .step-num { width: 28px; height: 28px; font-size: 12px; }
+      .step-title { font-size: 13px; }
+
+      section { margin-bottom: 48px; }
+
+      footer { margin-top: 56px; font-size: 12px; }
+    }
+
+    /* Small mobile: ≤ 400px */
+    @media (max-width: 400px) {
+      .cards { grid-template-columns: 1fr; }
+      .themes-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 24px; }
+      main { padding: 72px 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+<!-- Mobile top bar -->
+<div class="mobile-topbar">
+  <span class="logo">OmniConnect Hub</span>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<!-- Overlay for mobile nav -->
+<div class="overlay" id="overlay"></div>
+<div class="wrapper">
+
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">OmniConnect Hub</div>
+      <div class="version">v1.0.0 — Documentation</div>
+    </div>
+    <span class="nav-group-label">Getting Started</span>
+    <a href="#introduction" class="active"><span class="icon">🌐</span> Introduction</a>
+    <a href="#requirements"><span class="icon">📋</span> Requirements</a>
+    <a href="#installation"><span class="icon">⚡</span> Installation</a>
+    <a href="#folder-structure"><span class="icon">📁</span> Folder Structure</a>
+    <span class="nav-group-label">Features</span>
+    <a href="#pages"><span class="icon">📄</span> Pages</a>
+    <a href="#themes"><span class="icon">🎨</span> Themes</a>
+    <a href="#components"><span class="icon">🧩</span> Components</a>
+    <a href="#real-time-data"><span class="icon">📡</span> Real‑Time Data</a>
+    <a href="#sustainability"><span class="icon">🌱</span> Sustainability</a>
+    <span class="nav-group-label">Customization</span>
+    <a href="#custom-theme"><span class="icon">🖌️</span> Custom Themes</a>
+    <a href="#mock-data"><span class="icon">🗃️</span> Mock Data</a>
+    <a href="#routing"><span class="icon">🔀</span> Routing</a>
+    <a href="#build-deploy"><span class="icon">🚀</span> Build & Deploy</a>
+    <span class="nav-group-label">Support</span>
+    <a href="#faq"><span class="icon">❓</span> FAQ</a>
+    <a href="#changelog"><span class="icon">📝</span> Changelog</a>
+    <a href="#credits"><span class="icon">🙏</span> Credits</a>
+  </nav>
+
+  <main>
+
+    <div class="hero">
+      <div class="hero-badge">⚡ v1.0.0 — Initial Release</div>
+      <h1>OmniConnect<br>Hub Docs</h1>
+      <p>A complete guide to installing, customizing, and deploying your logistics & supply-chain dashboard template.</p>
+      <div class="hero-tags">
+        <span class="tag cyan">React 18</span>
+        <span class="tag blue">TypeScript</span>
+        <span class="tag blue">Vite</span>
+        <span class="tag purple">Tailwind CSS v4</span>
+        <span class="tag green">6 Themes</span>
+        <span class="tag cyan">Three.js Globe</span>
+        <span class="tag purple">Framer Motion</span>
+      </div>
+    </div>
+
+    <!-- INTRODUCTION -->
+    <section id="introduction">
+      <h2 class="section-title">Introduction</h2>
+      <p class="section-sub">What is OmniConnect Hub?</p>
+      <p><strong style="color:#e2e8f0">OmniConnect Hub</strong> is a premium React + TypeScript admin dashboard template designed for logistics, shipping, and supply-chain platforms. It ships with a stunning interactive 3D globe, live-updating KPI cards, advanced analytics charts, a carbon-footprint calculator, and a fully customizable multi-theme system — all powered by production-grade tooling.</p>
+      <div class="cards">
+        <div class="card"><div class="card-icon">🌍</div><div class="card-title">3D Live Globe</div><div class="card-desc">WebGL globe with animated shipping routes and satellite markers</div></div>
+        <div class="card"><div class="card-icon">📡</div><div class="card-title">Real-Time KPIs</div><div class="card-desc">6 KPI cards that update every 2 seconds with smooth animations</div></div>
+        <div class="card"><div class="card-icon">🎨</div><div class="card-title">6 Color Themes</div><div class="card-desc">One-click brand themes applied across UI and the 3D globe</div></div>
+        <div class="card"><div class="card-icon">📊</div><div class="card-title">Analytics</div><div class="card-desc">Recharts-powered area, bar, and line charts with mock data</div></div>
+        <div class="card"><div class="card-icon">🌱</div><div class="card-title">Sustainability</div><div class="card-desc">CO₂ calculator with IMO 2023 data and green routing comparison</div></div>
+        <div class="card"><div class="card-icon">📦</div><div class="card-title">Shipment Tracking</div><div class="card-desc">Shipment table with status badges, progress bars, and filtering</div></div>
+      </div>
+    </section>
+
+    <!-- REQUIREMENTS -->
+    <section id="requirements">
+      <h2 class="section-title">Requirements</h2>
+      <p class="section-sub">What you need before you start</p>
+      <table>
+        <thead><tr><th>Tool</th><th>Version</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>Node.js</code></td><td>≥ 20.x LTS</td><td>Required to run Vite and build the project</td></tr>
+          <tr><td><code>pnpm</code></td><td>≥ 9.x</td><td>Preferred package manager</td></tr>
+          <tr><td><code>npm</code></td><td>≥ 10.x</td><td>Alternative — remove the <code>preinstall</code> guard first</td></tr>
+          <tr><td>Modern browser</td><td>—</td><td>Chrome 90+, Firefox 88+, Safari 15+, Edge 90+</td></tr>
+          <tr><td>GPU (optional)</td><td>—</td><td>Recommended for smooth 3D globe rendering</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-info">
+        <strong>ℹ️ Package manager:</strong> The workspace is configured for <code>pnpm</code>. To use <code>npm</code>, remove the <code>"preinstall"</code> script from the root <code>package.json</code>.
+      </div>
+    </section>
+
+    <!-- INSTALLATION -->
+    <section id="installation">
+      <h2 class="section-title">Installation</h2>
+      <p class="section-sub">Up and running in under 2 minutes</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">Install pnpm globally</div><div class="step-desc">Skip if already installed.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">Extract the downloaded ZIP</div><div class="step-desc">Unzip the package into your desired project folder.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">Install dependencies</div><div class="step-desc">Run <code>pnpm install</code> from the root of the project.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-title">Start the development server</div><div class="step-desc">Navigate to the artifact folder and run <code>pnpm dev</code>.</div></div></div>
+      </div>
+      <div class="code-block">
+        <pre><span class="comment"># 1. Install pnpm globally (skip if already installed)</span>
+<span class="cmd">npm install -g pnpm</span>
+
+<span class="comment"># 2. Install workspace dependencies from the project root</span>
+<span class="cmd">pnpm install</span>
+
+<span class="comment"># 3. Navigate to the app folder and start the dev server</span>
+<span class="cmd">cd artifacts/omniconnect-hub</span>
+<span class="cmd">pnpm dev</span></pre>
+      </div>
+      <div class="alert alert-success"><strong>✅ Done!</strong> Open <code>http://localhost:5173</code> in your browser.</div>
+
+      <h3>Available Scripts</h3>
+      <table>
+        <thead><tr><th>Command</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>pnpm dev</code></td><td>Start development server with HMR on port 5173</td></tr>
+          <tr><td><code>pnpm build</code></td><td>Type-check and build for production into <code>dist/public/</code></td></tr>
+          <tr><td><code>pnpm serve</code></td><td>Preview the production build locally</td></tr>
+          <tr><td><code>pnpm typecheck</code></td><td>Run TypeScript type checking only</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FOLDER STRUCTURE -->
+    <section id="folder-structure">
+      <h2 class="section-title">Folder Structure</h2>
+      <p class="section-sub">An overview of the project layout</p>
+      <div class="code-block">
+        <pre><span class="key">OmniConnect-Hub/</span>
+├── <span class="key">artifacts/</span>
+│   └── <span class="key">omniconnect-hub/</span>          <span class="comment"># Main frontend application</span>
+│       ├── <span class="key">src/</span>
+│       │   ├── <span class="key">components/</span>           <span class="comment"># Reusable UI components</span>
+│       │   │   ├── <span class="key">layout/</span>           <span class="comment"># Layout, Sidebar, TopBar</span>
+│       │   │   └── <span class="key">ui/</span>               <span class="comment"># shadcn/ui primitives</span>
+│       │   ├── <span class="key">contexts/</span>             <span class="comment"># ThemeContext (global theme state)</span>
+│       │   ├── <span class="key">hooks/</span>                <span class="comment"># Custom React hooks</span>
+│       │   ├── <span class="key">lib/</span>
+│       │   │   ├── <span class="str">mockData.ts</span>       <span class="comment"># All demo data (ports, shipments…)</span>
+│       │   │   ├── <span class="str">themes.ts</span>         <span class="comment"># Theme definitions + emission math</span>
+│       │   │   └── <span class="str">utils.ts</span>          <span class="comment"># Utility helpers</span>
+│       │   ├── <span class="key">pages/</span>                <span class="comment"># Route-level page components</span>
+│       │   ├── <span class="str">App.tsx</span>               <span class="comment"># Root app + router</span>
+│       │   └── <span class="str">index.css</span>             <span class="comment"># Global styles + CSS variables</span>
+│       ├── <span class="str">vite.config.ts</span>
+│       └── <span class="str">package.json</span>
+├── <span class="key">lib/</span>                              <span class="comment"># Shared workspace libraries</span>
+├── <span class="str">package.json</span>                      <span class="comment"># Workspace root</span>
+└── <span class="str">pnpm-workspace.yaml</span></pre>
+      </div>
+    </section>
+
+    <!-- PAGES -->
+    <section id="pages">
+      <h2 class="section-title">Pages</h2>
+      <p class="section-sub">A breakdown of every route in the application</p>
+      <table>
+        <thead><tr><th>Route</th><th>File</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>/</code></td><td><code>pages/Dashboard.tsx</code></td><td>Main dashboard with 3D globe, KPI cards, recent shipments, and port weather</td></tr>
+          <tr><td><code>/tracking</code></td><td><code>pages/Tracking.tsx</code></td><td>Full shipment tracking table with search, filters, and status badges</td></tr>
+          <tr><td><code>/analytics</code></td><td><code>pages/Analytics.tsx</code></td><td>Area, bar, and line charts powered by Recharts</td></tr>
+          <tr><td><code>/sustainability</code></td><td><code>pages/Sustainability.tsx</code></td><td>CO₂ emission calculator and green route comparison</td></tr>
+          <tr><td><code>/themes</code></td><td><code>pages/Themes.tsx</code></td><td>Interactive theme switcher — live preview all 6 palettes</td></tr>
+          <tr><td><code>/*</code></td><td><code>pages/not-found.tsx</code></td><td>Animated 404 page</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- THEMES -->
+    <section id="themes">
+      <h2 class="section-title">Themes</h2>
+      <p class="section-sub">6 built-in brand palettes, switchable in one click</p>
+      <p>Each theme updates <strong style="color:#e2e8f0">CSS custom properties on <code>:root</code></strong> and simultaneously updates the <strong style="color:#e2e8f0">3D globe materials</strong>, ensuring perfect consistency across the entire UI and WebGL layer.</p>
+      <div class="themes-grid">
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#22d3ee,#3b82f6)"></div><div class="theme-name">Tech Blue</div><div class="theme-desc">Default — high-tech, trustworthy</div></div>
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#10e3ae,#059669)"></div><div class="theme-name">Eco Green</div><div class="theme-desc">ESG-focused, sustainable brand</div></div>
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#c77dff,#7b2cbf)"></div><div class="theme-name">Luxury Purple</div><div class="theme-desc">Premium enterprise SaaS</div></div>
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#ff4d6d,#c9184a)"></div><div class="theme-name">Energy Red</div><div class="theme-desc">Bold, urgent ops dashboards</div></div>
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#fbbf24,#d97706)"></div><div class="theme-name">Solar Gold</div><div class="theme-desc">Warm premium, energy sector</div></div>
+        <div class="theme-card"><div class="swatch" style="background:linear-gradient(90deg,#7dd3fc,#0ea5e9)"></div><div class="theme-name">Arctic Ice</div><div class="theme-desc">Clean, frosted-glass enterprise</div></div>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section id="components">
+      <h2 class="section-title">Key Components</h2>
+      <p class="section-sub">The building blocks of the dashboard</p>
+      <table>
+        <thead><tr><th>Component</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Globe3D</code></td><td>Interactive WebGL globe (Three.js + R3F) with animated routes and satellite markers</td></tr>
+          <tr><td><code>StatCard</code></td><td>KPI card with trend indicator, animated counter, and gradient accent</td></tr>
+          <tr><td><code>ShipmentRow</code></td><td>Shipment list row — status badge, progress bar, origin/destination</td></tr>
+          <tr><td><code>WeatherWidget</code></td><td>Port weather card with icon, temperature, and wind speed</td></tr>
+          <tr><td><code>LoadingOverlay</code></td><td>Full-screen branded loading animation on first mount</td></tr>
+          <tr><td><code>DemoActions</code></td><td>Toolbar to simulate shipments and trigger the AI analysis animation</td></tr>
+          <tr><td><code>Layout</code></td><td>App shell wrapping Sidebar + TopBar + page content</td></tr>
+          <tr><td><code>Sidebar</code></td><td>Collapsible navigation sidebar with theme awareness</td></tr>
+          <tr><td><code>TopBar</code></td><td>Top navigation bar with search input and user avatar</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- REAL-TIME DATA -->
+    <section id="real-time-data">
+      <h2 class="section-title">Real‑Time Data</h2>
+      <p class="section-sub">How the live data simulation works</p>
+      <p>The hook <code>useRealTimeData</code> drives the live KPI updates on the Dashboard. Every <strong style="color:#e2e8f0">2 seconds</strong>, it randomly selects 2–3 metrics and applies a tiny realistic delta — no full re-renders, no flicker.</p>
+      <table>
+        <thead><tr><th>Metric</th><th>Update Logic</th></tr></thead>
+        <tbody>
+          <tr><td><code>totalShipments</code></td><td>+1 to +3 per tick (always increasing)</td></tr>
+          <tr><td><code>activeShipments</code></td><td>±1 or ±2 fluctuation around baseline</td></tr>
+          <tr><td><code>delayedShipments</code></td><td>±1, clamped between 5 and 28</td></tr>
+          <tr><td><code>fuelConsumption</code></td><td>+2 to +5 per tick</td></tr>
+          <tr><td><code>co2Emission</code></td><td>+1 to +3 per tick</td></tr>
+          <tr><td><code>systemEfficiency</code></td><td>±0.1%, clamped between 92% and 99.9%</td></tr>
+        </tbody>
+      </table>
+      <h3>Run Analysis</h3>
+      <p>Clicking <strong style="color:#e2e8f0">Run Analysis</strong> pauses the ticker for 1.8 seconds (simulating computation), then improves <code>systemEfficiency</code>, <code>co2Emission</code>, and <code>fuelConsumption</code>, and returns a realistic route-optimization recommendation.</p>
+    </section>
+
+    <!-- SUSTAINABILITY -->
+    <section id="sustainability">
+      <h2 class="section-title">Sustainability Module</h2>
+      <p class="section-sub">Carbon footprint calculator powered by real industry data</p>
+      <p>The Sustainability page features an interactive emission calculator built on <strong style="color:#e2e8f0">IMO 2023 GHG Study</strong> emission factors, comparing standard vs. green routes across four transport modes.</p>
+      <table>
+        <thead><tr><th>Mode</th><th>Emission Factor</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>🚢 Ocean Freight</td><td>20 g CO₂e / ton·km</td><td>IMO 2023 GHG Study</td></tr>
+          <tr><td>🚆 Rail Freight</td><td>28 g CO₂e / ton·km</td><td>GLEC Framework v3</td></tr>
+          <tr><td>🚛 Road Freight</td><td>75 g CO₂e / ton·km</td><td>GLEC Framework v3</td></tr>
+          <tr><td>✈️ Air Freight</td><td>600 g CO₂e / ton·km</td><td>IATA CORSIA</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-warning"><strong>📌 Note:</strong> Green route optimization applies a <strong>37% emission reduction</strong>. Carbon offset price uses EU ETS Q2 2026 reference of <strong>$85 / ton CO₂e</strong>.</div>
+    </section>
+
+    <!-- CUSTOM THEME -->
+    <section id="custom-theme">
+      <h2 class="section-title">Adding a Custom Theme</h2>
+      <p class="section-sub">Extend the 6 built-in palettes with your own brand colors</p>
+      <p>Open <code>src/lib/themes.ts</code> and append a new object to the <code>BRAND_THEMES</code> array:</p>
+      <div class="code-block">
+        <pre><span class="comment">// src/lib/themes.ts — add to BRAND_THEMES array</span>
+{
+  <span class="key">id</span>:           <span class="str">"myBrand"</span>,
+  <span class="key">name</span>:         <span class="str">"My Brand"</span>,
+  <span class="key">description</span>:  <span class="str">"Custom palette for XYZ Corp"</span>,
+  <span class="key">primary</span>:      <span class="str">"#ff6b35"</span>,
+  <span class="key">secondary</span>:    <span class="str">"#e63946"</span>,
+  <span class="key">accent</span>:       <span class="str">"#ff8c69"</span>,
+  <span class="key">glow</span>:         <span class="str">"rgba(255,107,53,0.5)"</span>,
+  <span class="key">primaryRgb</span>:   <span class="str">"255, 107, 53"</span>,
+  <span class="key">secondaryRgb</span>: <span class="str">"230, 57, 70"</span>,
+}</pre>
+      </div>
+      <p>That's it. The <code>ThemeContext</code> will automatically pick up the new theme and update both the CSS variables and the 3D globe materials — no other changes needed.</p>
+    </section>
+
+    <!-- MOCK DATA -->
+    <section id="mock-data">
+      <h2 class="section-title">Editing Mock Data</h2>
+      <p class="section-sub">Customize ports, shipments, and demo content</p>
+      <p>All demo data lives in <code>src/lib/mockData.ts</code>.</p>
+      <table>
+        <thead><tr><th>Export</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>PORTS</code></td><td>Array of 20+ global port objects (name, country, coordinates, traffic)</td></tr>
+          <tr><td><code>generateShipments(n)</code></td><td>Generates <em>n</em> random shipments with realistic data</td></tr>
+          <tr><td><code>Shipment</code></td><td>TypeScript type for a single shipment record</td></tr>
+        </tbody>
+      </table>
+      <p>To connect real data, replace <code>generateShipments()</code> with API calls and update the <code>useRealTimeData</code> hook to fetch from your backend.</p>
+    </section>
+
+    <!-- ROUTING -->
+    <section id="routing">
+      <h2 class="section-title">Routing</h2>
+      <p class="section-sub">Client-side routing with Wouter</p>
+      <p>The project uses <strong style="color:#e2e8f0">Wouter</strong> — a lightweight React router (~1.5 KB). All routes are declared in <code>src/App.tsx</code> inside a <code>&lt;Switch&gt;</code> block, wrapped in Framer Motion's <code>&lt;AnimatePresence&gt;</code> for smooth page transitions.</p>
+      <p>To add a new page: create a component in <code>src/pages/</code>, import it in <code>App.tsx</code>, add a <code>&lt;Route&gt;</code> entry, then add the link to <code>Sidebar.tsx</code>.</p>
+      <div class="alert alert-info"><strong>ℹ️ Base path:</strong> Configurable via the <code>BASE_PATH</code> environment variable — useful for sub-directory deployments (e.g. <code>/demo/</code>).</div>
+    </section>
+
+    <!-- BUILD & DEPLOY -->
+    <section id="build-deploy">
+      <h2 class="section-title">Build & Deploy</h2>
+      <p class="section-sub">Generating a production-ready build</p>
+      <div class="code-block">
+        <pre><span class="comment"># From artifacts/omniconnect-hub/</span>
+<span class="cmd">pnpm build</span>
+
+<span class="comment"># Output folder</span>
+<span class="str">artifacts/omniconnect-hub/dist/public/</span>
+
+<span class="comment"># Preview locally</span>
+<span class="cmd">pnpm serve</span></pre>
+      </div>
+      <h3>Deployment Options</h3>
+      <table>
+        <thead><tr><th>Platform</th><th>Configuration</th></tr></thead>
+        <tbody>
+          <tr><td>Netlify</td><td>Publish directory: <code>artifacts/omniconnect-hub/dist/public</code>. The included <code>_redirects</code> file handles SPA routing automatically.</td></tr>
+          <tr><td>Vercel</td><td>Root directory: <code>artifacts/omniconnect-hub</code> — Output: <code>dist/public</code></td></tr>
+          <tr><td>GitHub Pages</td><td>Set <code>BASE_PATH</code> env var to your repo sub-path, deploy <code>dist/public/</code></td></tr>
+          <tr><td>Any static host</td><td>Upload the contents of <code>dist/public/</code> — it is a fully self-contained SPA.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <h2 class="section-title">FAQ</h2>
+      <p class="section-sub">Common questions</p>
+      <h3>The 3D globe is slow — how do I improve performance?</h3>
+      <p>The <code>Globe3D</code> component uses the <code>useDevicePerformance</code> hook to automatically lower route count, disable satellites, and reduce geometry detail on low-end devices. You can tune these thresholds inside the hook.</p>
+      <h3>Can I replace the mock data with a real API?</h3>
+      <p>Yes. Replace <code>generateShipments()</code> calls with <code>@tanstack/react-query</code> fetch calls. React Query is already set up in <code>App.tsx</code> — add your query hooks under <code>src/hooks/</code>.</p>
+      <h3>How do I change the default theme?</h3>
+      <p>Open <code>src/lib/themes.ts</code> and change <code>DEFAULT_THEME_ID</code> to any theme id (e.g. <code>"ecoGreen"</code>).</p>
+      <h3>The globe shows a blank canvas — what's wrong?</h3>
+      <p>Make sure WebGL is enabled in your browser. On headless or CI environments WebGL is typically unavailable — this is expected behavior.</p>
+      <h3>Can I use npm instead of pnpm?</h3>
+      <p>Yes. Remove the <code>"preinstall"</code> script from the root <code>package.json</code>, then run <code>npm install</code> from the root.</p>
+    </section>
+
+    <!-- CHANGELOG -->
+    <section id="changelog">
+      <h2 class="section-title">Changelog</h2>
+      <p class="section-sub">Version history</p>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span class="tag cyan">v1.0.0</span>
+          <span style="color:var(--muted);font-size:12.5px">Initial Release — 2026</span>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;margin:0">First public release. Includes Dashboard, Tracking, Analytics, Sustainability, and Themes pages. 6 brand themes. Interactive 3D globe. Real-time KPI simulation. Carbon emission calculator. Fully responsive layout.</p>
+      </div>
+    </section>
+
+    <!-- CREDITS -->
+    <section id="credits">
+      <h2 class="section-title">Credits</h2>
+      <p class="section-sub">Third-party libraries used in this project</p>
+      <table>
+        <thead><tr><th>Library</th><th>License</th><th>Used For</th></tr></thead>
+        <tbody>
+          <tr><td>React 18</td><td>MIT</td><td>UI framework</td></tr>
+          <tr><td>TypeScript</td><td>Apache 2.0</td><td>Type safety</td></tr>
+          <tr><td>Vite</td><td>MIT</td><td>Build tool & dev server</td></tr>
+          <tr><td>Tailwind CSS v4</td><td>MIT</td><td>Utility-first styling</td></tr>
+          <tr><td>Three.js + R3F</td><td>MIT</td><td>3D globe rendering</td></tr>
+          <tr><td>Framer Motion</td><td>MIT</td><td>Animations & page transitions</td></tr>
+          <tr><td>Recharts</td><td>MIT</td><td>Analytics charts</td></tr>
+          <tr><td>shadcn/ui + Radix UI</td><td>MIT</td><td>UI component primitives</td></tr>
+          <tr><td>Lucide React</td><td>ISC</td><td>Icon library</td></tr>
+          <tr><td>Wouter</td><td>ISC</td><td>Client-side routing</td></tr>
+          <tr><td>TanStack Query</td><td>MIT</td><td>Data fetching & caching</td></tr>
+          <tr><td>Sonner</td><td>MIT</td><td>Toast notifications</td></tr>
+          <tr><td>Zod</td><td>MIT</td><td>Schema validation</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>OmniConnect Hub &nbsp;·&nbsp; Documentation v1.0.0</p>
+      <p style="margin-top:6px">Thank you for your purchase! If you enjoy this template, please leave a ⭐ review on ThemeForest.</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // ── Hamburger menu ──────────────────────────
+  const hamburger = document.getElementById('hamburger');
+  const sidebar   = document.querySelector('nav.sidebar');
+  const overlay   = document.getElementById('overlay');
+
+  function openMenu() {
+    sidebar.classList.add('open');
+    hamburger.classList.add('open');
+    overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    sidebar.classList.remove('open');
+    hamburger.classList.remove('open');
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeMenu() : openMenu());
+  overlay.addEventListener('click', closeMenu);
+
+  // Close menu when a nav link is clicked (mobile)
+  document.querySelectorAll('nav.sidebar a').forEach(a => {
+    a.addEventListener('click', () => { if (window.innerWidth <= 768) closeMenu(); });
+  });
+
+  // ── Wrap tables for horizontal scroll on mobile ──
+  document.querySelectorAll('section table').forEach(tbl => {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    tbl.parentNode.insertBefore(wrap, tbl);
+    wrap.appendChild(tbl);
+  });
+
+  // ── Active nav link on scroll ───────────────
+  const sections = document.querySelectorAll('section[id]');
+  const links    = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav.sidebar a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -65% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
