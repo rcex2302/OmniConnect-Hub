@@ -88,7 +88,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
           <div className="absolute inset-0 bg-slate-950" />
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/50 via-slate-950 to-blue-950/30" />
 
-          {/* شبكة خلفية متحركة */}
+          {/* Animated background network */}
           <div
             className="absolute inset-0 opacity-[0.07]"
             style={{
@@ -98,7 +98,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
             }}
           />
 
-          {/* بقع ضوئية */}
+          {/* Spots of light */}
           <motion.div
             animate={{ opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 4, repeat: Infinity }}
@@ -125,7 +125,7 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) => {
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="relative mb-4"
               >
-                {/* حلقة دوّارة خارجية */}
+                {/* outer rotating ring */}
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
