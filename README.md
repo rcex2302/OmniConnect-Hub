@@ -82,7 +82,7 @@ cd artifacts/omniconnect-hub
 pnpm dev
 ```
 
-> Open **http://localhost:5173** in your browser.
+> Open **https://omniconnect-hub.netlify.app/** in your browser.
 
 ---
 
